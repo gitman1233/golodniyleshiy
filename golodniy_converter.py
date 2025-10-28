@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-KAITEN_WEBHOOK_URL = 'https://ВАШ_WEBHOOK_KAITEN'
+KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262aafa9df08cc0bb1935cd038cb4d028ec7933ab43462dbe523a62663a1d769a4c1bf38110d3f43bb562a4e02c24b08ac66397701674204cd2b'
 
 @app.route('/', methods=['POST'])
 def webhook():
