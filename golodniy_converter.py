@@ -14,20 +14,18 @@ def create_checklist(card_id, products):
         "Authorization": f"Bearer {KAITEN_TOKEN}",
         "Content-Type": "application/json"
     }
+    
+    sort_order = [
+        {
+            "type": idx,
+            "description": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
+            "exclusiveMinimum": 0
+        }
+        for idx, p in enumerate(products, 1)
+    ]
     checklist_payload = {
         "name": "Чек-лист заказов голодный леший",
-        "sort_order": 1,
-        "items": [
-            {
-                "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
-                "sort_order": {
-                    "type": idx,
-                    "description": p.get('name', ''),
-                    "exclusiveMinimum": 0
-                }
-            }
-            for idx, p in enumerate(products, 1)
-        ]
+        "sort_order": sort_order
     }
     resp = requests.post(
         url,
