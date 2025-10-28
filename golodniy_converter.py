@@ -4,19 +4,18 @@ import os
 
 app = Flask(__name__)
 
-# Укажи свой Kaiten webhook URL!
 KAITEN_WEBHOOK_URL = 'https://ВАШ_WEBHOOK_KAITEN'
 
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.json
 
-    title = "Заказ с сайта Голодный Леший.ру"
-
     payment = data.get('payment', {})
-    products = payment.get('products', [])
+    orderid = payment.get('orderid', '')
+    # Название карточки с номером заказа
+    title = f"Заказ #{orderid} с сайта Голодный Леший.ру"
 
-    # Собирает по каждому товару: название, кол-во, цена, опции
+    products = payment.get('products', [])
     products_list = ""
     for idx, p in enumerate(products, 1):
         products_list += f"Товар {idx}: {p.get('name', '')}, Количество: {p.get('quantity', '')}, Цена: {p.get('price', '')}\n"
@@ -27,7 +26,7 @@ def webhook():
     fio = data.get('ma_name') or payment.get('delivery_fio', '')
 
     description = (
-        f"Номер заказа: {payment.get('orderid', '')}\n"
+        f"Номер заказа: {orderid}\n"
         f"Список товаров:\n{products_list}"
         f"Стоимость доставки: {payment.get('delivery_price', '')}\n"
         f"Промокод: {payment.get('promocode', '')}\n"
