@@ -4,23 +4,31 @@ import os
 
 app = Flask(__name__)
 
-# Укажи свой реальный Kaiten webhook URL!
-KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262aafa9df08cc0bb1935cd038cb4d028ec7933ab43462dbe523a62663a1d769a4c1bf38110d3f43bb562a4e02c24b08ac66397701674204cd2b'
+# Укажи свой Kaiten webhook URL!
+KAITEN_WEBHOOK_URL = 'https://ВАШ_WEBHOOK_KAITEN'
 
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.json
 
-    # Название карточки
     title = "Заказ с сайта Голодный Леший.ру"
 
     payment = data.get('payment', {})
-    product = payment.get('products', [{}])[0]
+    products = payment.get('products', [])
+
+    # Собирает по каждому товару: название, кол-во, цена, опции
+    products_list = ""
+    for idx, p in enumerate(products, 1):
+        products_list += f"Товар {idx}: {p.get('name', '')}, Количество: {p.get('quantity', '')}, Цена: {p.get('price', '')}\n"
+        options = p.get('options', [])
+        for op in options:
+            products_list += f"    Опция: {op.get('option', '')} — {op.get('variant', '')}\n"
+
+    fio = data.get('ma_name') or payment.get('delivery_fio', '')
 
     description = (
-        f"Товар: {product.get('name', '')}\n"
-        f"Количество: {product.get('quantity', '')}\n"
-        f"Цена: {product.get('price', '')}\n"
+        f"Номер заказа: {payment.get('orderid', '')}\n"
+        f"Список товаров:\n{products_list}"
         f"Стоимость доставки: {payment.get('delivery_price', '')}\n"
         f"Промокод: {payment.get('promocode', '')}\n"
         f"Скидка: {payment.get('discountvalue', '')} ({payment.get('discount', '')})\n"
@@ -29,12 +37,11 @@ def webhook():
         f"Способ доставки: {payment.get('delivery', '')}\n"
         f"Город доставки: {payment.get('delivery_city', '')}\n"
         f"Адрес пункта выдачи заказа: {payment.get('delivery_address', '')}\n"
-        f"Телефон: {data.get('Phone', '')}\n"
-        f"Email: {data.get('Email', '')}\n"
-        f"ФИО: {data.get('ma_name', '')}\n"
+        f"Телефон: {data.get('Phone', '') or data.get('ma_phone', '')}\n"
+        f"Email: {data.get('Email', '') or data.get('ma_email', '')}\n"
+        f"ФИО: {fio}\n"
     )
 
-    # Формируем итоговый JSON для Kaiten
     payload = {
         "title": title,
         "description": description,
@@ -47,10 +54,7 @@ def webhook():
         ]
     }
 
-    # Отправка в Kaiten
     resp = requests.post(KAITEN_WEBHOOK_URL, json=payload)
-
-    # Лог вывода для дебага
     print("Получен заказ с Tilda, вот JSON для Kaiten:\n", payload)
     print("Ответ Kaiten:", resp.status_code, resp.text)
 
