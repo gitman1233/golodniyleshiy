@@ -19,9 +19,14 @@ def create_checklist(card_id, products):
         "sort_order": 1,
         "items": [
             {
-                "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}"
+                "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
+                "sort_order": {
+                    "type": idx,
+                    "description": p.get('name', ''),
+                    "exclusiveMinimum": 0
+                }
             }
-            for p in products
+            for idx, p in enumerate(products, 1)
         ]
     }
     resp = requests.post(
@@ -31,6 +36,7 @@ def create_checklist(card_id, products):
     )
     resp.raise_for_status()
     print("API ответ по чек-листу:", resp.json())
+
 
 @app.route('/', methods=['POST'])
 def webhook():
