@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Укажи свой реальный Kaiten webhook URL!
-KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/9a7e2854d97c60055c825e2f3ebd74f273b055e790890900f265874b1f34b2ba81555cf9125996574fa40be62123e0d0d47d0bdb7f06a24ae999540c841a7e47'
+KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262aafa9df08cc0bb1935cd038cb4d028ec7933ab43462dbe523a62663a1d769a4c1bf38110d3f43bb562a4e02c24b08ac66397701674204cd2b'
 
 @app.route('/', methods=['POST'])
 def webhook():
