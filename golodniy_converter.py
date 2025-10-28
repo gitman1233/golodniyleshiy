@@ -27,7 +27,7 @@ def create_checklist_and_items(card_id, products):
     for idx, p in enumerate(products, 1):
         item_url = f"https://golodniyleshiy.kaiten.ru/api/latest/checklists/{checklist_id}/items"
         item_payload = {
-            "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
+            "text": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
             "sort_order": idx
         }
         resp_item = requests.post(item_url, json=item_payload, headers=headers)
