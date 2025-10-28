@@ -8,33 +8,31 @@ KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262a
 KAITEN_API_URL_TMPL = 'https://golodniyleshiy.kaiten.ru/api/latest/cards/{card_id}/checklists'
 KAITEN_TOKEN = 'a3d53c43-f6bd-4c97-87bb-8fdafbc36afc'
 
-def create_checklist(card_id, products):
+def create_checklist_and_items(card_id, products):
     url = KAITEN_API_URL_TMPL.format(card_id=card_id)
     headers = {
         "Authorization": f"Bearer {KAITEN_TOKEN}",
         "Content-Type": "application/json"
     }
-    
-    sort_order = [
-        {
-            "type": idx,
-            "description": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
-            "exclusiveMinimum": 0
-        }
-        for idx, p in enumerate(products, 1)
-    ]
     checklist_payload = {
-        "name": "Чек-лист заказов голодный леший",
-        "sort_order": sort_order
+        "name": "Чек-лист заказов голодный леший"
     }
-    resp = requests.post(
-        url,
-        json=checklist_payload,
-        headers=headers
-    )
+    # 1. Создаём чек-лист
+    resp = requests.post(url, json=checklist_payload, headers=headers)
     resp.raise_for_status()
+    checklist_id = resp.json().get('id')
     print("API ответ по чек-листу:", resp.json())
 
+    # 2. Добавляем товары как пункты чек-листа
+    for idx, p in enumerate(products, 1):
+        item_url = f"https://golodniyleshiy.kaiten.ru/api/latest/checklists/{checklist_id}/items"
+        item_payload = {
+            "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
+            "sort_order": idx
+        }
+        resp_item = requests.post(item_url, json=item_payload, headers=headers)
+        resp_item.raise_for_status()
+        print(f"Добавлен пункт {idx}: {resp_item.json()}")
 
 @app.route('/', methods=['POST'])
 def webhook():
@@ -90,9 +88,9 @@ def webhook():
         try:
             card_id = resp.json().get('id')
             if card_id:
-                create_checklist(card_id, products)
+                create_checklist_and_items(card_id, products)
         except Exception as e:
-            print("Ошибка при создании чек-листа:", e)
+            print("Ошибка при создании чек-листа и добавлении товаров:", e)
 
     return jsonify({"status": "ok", "kaiten_response": resp.status_code}), 200
 
