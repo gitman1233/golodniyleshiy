@@ -14,15 +14,15 @@ def create_checklist(card_id, products):
         "Authorization": f"Bearer {KAITEN_TOKEN}",
         "Content-Type": "application/json"
     }
-    checklist_items = [
-        {
-            "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}"
-        }
-        for p in products
-    ]
     checklist_payload = {
-        "title": "Товары заказа",
-        "items": checklist_items
+        "name": "Чек-лист заказов голодный леший",
+        "sort_order": 1,
+        "items": [
+            {
+                "content": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}"
+            }
+            for p in products
+        ]
     }
     resp = requests.post(
         url,
@@ -82,7 +82,6 @@ def webhook():
     print("Получен заказ с Tilda, вот JSON для Kaiten:\n", payload)
     print("Ответ Kaiten:", resp.status_code, resp.text)
 
-    
     if resp.status_code == 200:
         try:
             card_id = resp.json().get('id')
