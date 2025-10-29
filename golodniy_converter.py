@@ -41,7 +41,7 @@ def create_checklist_and_items(card_id, orderid, products):
     # 2. Добавляем товары как пункты чек-листа
     for idx, p in enumerate(products, 1):
         item_payload = {
-            "content": format_product_line(p),
+            "text": format_product_line(p),
             "sort_order": idx
         }
         item_url = f"https://golodniyleshiy.kaiten.ru/api/latest/checklists/{checklist_id}/items"
