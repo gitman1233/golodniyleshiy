@@ -8,14 +8,29 @@ KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262a
 KAITEN_API_URL_TMPL = 'https://golodniyleshiy.kaiten.ru/api/latest/cards/{card_id}/checklists'
 KAITEN_TOKEN = 'a3d53c43-f6bd-4c97-87bb-8fdafbc36afc'
 
-def create_checklist_and_items(card_id, products):
+def format_product_line(p):
+    # Используем простую формулу для наглядного результата
+    qty = str(p.get('quantity', '')) if p.get('quantity', '') else ''
+    # Соберём все опции в одну строку, например: "1 кг zero waste"
+    options_str = ', '.join(
+        filter(None, [op.get('variant', '') for op in p.get('options', [])])
+    )
+    parts = [
+        p.get('name', ''),
+        f"{qty}шт" if qty else '',
+        options_str
+    ]
+    # убираем пустые элементы
+    return ', '.join([part for part in parts if part])
+
+def create_checklist_and_items(card_id, orderid, products):
     url = KAITEN_API_URL_TMPL.format(card_id=card_id)
     headers = {
         "Authorization": f"Bearer {KAITEN_TOKEN}",
         "Content-Type": "application/json"
     }
     checklist_payload = {
-        "name": "Чек-лист заказов голодный леший"
+        "name": f"Заказ №{orderid}"
     }
     # 1. Создаём чек-лист
     resp = requests.post(url, json=checklist_payload, headers=headers)
@@ -25,11 +40,11 @@ def create_checklist_and_items(card_id, products):
 
     # 2. Добавляем товары как пункты чек-листа
     for idx, p in enumerate(products, 1):
-        item_url = f"https://golodniyleshiy.kaiten.ru/api/latest/checklists/{checklist_id}/items"
         item_payload = {
-            "text": f"{p.get('name', '')}, Кол-во: {p.get('quantity', '')}, Цена: {p.get('price', '')}",
+            "content": format_product_line(p),
             "sort_order": idx
         }
+        item_url = f"https://golodniyleshiy.kaiten.ru/api/latest/checklists/{checklist_id}/items"
         resp_item = requests.post(item_url, json=item_payload, headers=headers)
         resp_item.raise_for_status()
         print(f"Добавлен пункт {idx}: {resp_item.json()}")
@@ -40,7 +55,7 @@ def webhook():
 
     payment = data.get('payment', {})
     orderid = payment.get('orderid', '')
-    title = f"Заказ #{orderid} с сайта Голодный Леший.ру"
+    title = f"Заказ #{orderid}"
 
     products = payment.get('products', [])
     products_list = ""
@@ -72,12 +87,7 @@ def webhook():
         "title": title,
         "description": description,
         "members": [],
-        "links": [
-            {
-                "url": "https://golodniyleshiy.ru",
-                "description": "Заказ через тильду с сайта golodniyleshiy.ru"
-            }
-        ]
+        "links": []
     }
 
     resp = requests.post(KAITEN_WEBHOOK_URL, json=payload)
@@ -88,7 +98,7 @@ def webhook():
         try:
             card_id = resp.json().get('id')
             if card_id:
-                create_checklist_and_items(card_id, products)
+                create_checklist_and_items(card_id, orderid, products)
         except Exception as e:
             print("Ошибка при создании чек-листа и добавлении товаров:", e)
 
