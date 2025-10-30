@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
 import os
+from datetime import datetime, timezone, timedelta
+
+
+kaiten_time = datetime.now(timezone(timedelta(hours=3)))
+date_now = kaiten_time.strftime("%d.%m.%Y")
 
 app = Flask(__name__)
 
@@ -55,7 +60,7 @@ def webhook():
 
     payment = data.get('payment', {})
     orderid = payment.get('orderid', '')
-    title = f"Заказ #{orderid}"
+    title = f"Заказ #{orderid}, {date_now}"
 
     products = payment.get('products', [])
     products_list = ""
