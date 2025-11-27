@@ -57,6 +57,7 @@ def create_checklist_and_items(card_id, orderid, products):
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.json
+    print(data)
 
     payment = data.get('payment', {})
     orderid = payment.get('orderid', '')
