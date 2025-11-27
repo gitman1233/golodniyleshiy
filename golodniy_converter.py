@@ -86,6 +86,7 @@ def webhook():
         f"Телефон: {data.get('Phone', '') or data.get('ma_phone', '')}\n"
         f"Email: {data.get('Email', '') or data.get('ma_email', '')}\n"
         f"ФИО: {fio}\n"
+        f"Комментарий к заказу: {data.get('delivery_comment', '')}\n"
     )
 
     payload = {
