@@ -114,6 +114,7 @@ def webhook():
 
 @app.route('/ping', methods=['GET'])
 def ping():
+    print("[LOG]Converter is UP")
     return 'OK', 200  # Мгновенный ответ
 
 
