@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 KAITEN_WEBHOOK_URL = 'https://golodniyleshiy.kaiten.ru/hooks/v1/49353cdaadef262aafa9df08cc0bb1935cd038cb4d028ec7933ab43462dbe523a62663a1d769a4c1bf38110d3f43bb562a4e02c24b08ac66397701674204cd2b'
 KAITEN_API_URL_TMPL = 'https://golodniyleshiy.kaiten.ru/api/latest/cards/{card_id}/checklists'
-KAITEN_TOKEN = 'a3d53c43-f6bd-4c97-87bb-8fdafbc36afc'
+KAITEN_TOKEN = '72d709dc-1028-42f5-a9a4-b0183038d10c'
 
 def format_product_line(p):
     # Используем простую формулу для наглядного результата
