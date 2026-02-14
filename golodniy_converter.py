@@ -4,8 +4,7 @@ import os
 from datetime import datetime, timezone, timedelta
 
 
-kaiten_time = datetime.now(timezone(timedelta(hours=3)))
-date_now = kaiten_time.strftime("%d.%m.%Y")
+
 
 app = Flask(__name__)
 
@@ -56,6 +55,8 @@ def create_checklist_and_items(card_id, orderid, products):
 
 @app.route('/', methods=['POST'])
 def webhook():
+    kaiten_time = datetime.now(timezone(timedelta(hours=3)))
+    date_now = kaiten_time.strftime("%d.%m.%Y")
     data = request.json
     print(data)
 
